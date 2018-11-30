@@ -1,44 +1,34 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { Component, Fragment } from 'react';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import Login from './components/login/login';
+import Dashboard from './components/dashboard/dashboard';
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 
 class App extends Component {
   state = {
-    response: ''
-  };
-  componentDidMount() {
-    this.callApi()
-      .then(res => this.setState({ response: res.express }))
-      .catch(err => console.log(err));
+    isLoggedIn: false
   }
-  callApi = async () => {
-    const response = await fetch('/users');
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
-    return body;
-  };
+  componentDidMount() {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      this.setState({ isLoggedIn: true });
+    }
+  }
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          <p>{this.state.response}</p>
-
-        </header>
-      </div>
+      <Fragment>
+        <Router>
+          <div>
+            <Route render={() => this.state.isLoggedIn ? <Dashboard /> : <Login />} />
+          </div>
+        </Router>
+      </Fragment >
     );
   }
 }
 
 export default App;
+
+// area chart http://jsfiddle.net/PyvZ7/7/
+// https://codepen.io/devpieces/pen/RampYo
