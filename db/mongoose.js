@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 
-const db = 'mongodb://localhost:27017/userdashboard'; // process.env.MONGODB_URI OR mongodb://<dbuser>:<dbpassword>@ds145563.mlab.com:45563/students;
+const db = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdashboard';
 
 mongoose.Promise = global.Promise;
 mongoose
