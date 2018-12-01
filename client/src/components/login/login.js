@@ -13,7 +13,6 @@ class Login extends Component {
         const { username, password } = this.state;
         event.preventDefault();
         axios.post('/login', { username: username, password: password }).then(response => {
-            console.log("login", response.data);
             sessionStorage.setItem('token', response.data.token);
             this.setState({ isLoggedIn: true });
         }).catch((error) => {
@@ -21,11 +20,7 @@ class Login extends Component {
             console.log(error);
         });
     }
-    onChange(e) {
-        if (this.props.onChange) {
-            this.props.onChange(e.target, e.target.value, e);
-        };
-    }
+
     onEmailChange = (e) => {
         this.setState({ username: e.target.value })
     }
@@ -54,11 +49,8 @@ class Login extends Component {
                                 </div>
                             </form>
                             {isLoginError && <div className="text-danger">{errorMessage}</div>}
-
                         </div>
-
                     </div>
-
                 </div>
                 }
                 {isLoggedIn && <Dashboard></Dashboard>}

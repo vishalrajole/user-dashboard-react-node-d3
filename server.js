@@ -19,7 +19,7 @@ app.post("/login", (req, res) => {
     var body = _.pick(req.body, ["username", "password"]);
     if (body.username === "test" && body.password === "password") {
         //mocked for time being. Should be in db with some kind of token based auth
-        res.status(200).send({ token: "sdkjne8njsdh2sdksfkj" }); // should be jwt token
+        res.status(200).send({ token: "sdkjne8njsdh2sdksfkj" }); // should be jwt token, generate random one
     } else {
         res.status(404).send("Invalid login details");
     }

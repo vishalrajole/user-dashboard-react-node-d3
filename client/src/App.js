@@ -29,6 +29,3 @@ class App extends Component {
 }
 
 export default App;
-
-// area chart http://jsfiddle.net/PyvZ7/7/
-// https://codepen.io/devpieces/pen/RampYo

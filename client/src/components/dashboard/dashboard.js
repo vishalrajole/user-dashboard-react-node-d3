@@ -12,17 +12,24 @@ class Dashboard extends Component {
         isError: false
     };
 
+    graphContainer = React.createRef();
     componentDidMount() {
         this.getUsers();
     }
 
+    /***
+    * helper method to abstract headers
+    */
     getHeaders = () => {
+        // BAD way, should pick token from cookie (should be httpOnly cookie)
         let token = sessionStorage.getItem('token');
         let headers = { 'Authorization': token };
         return headers;
     }
+    /***
+     * get list of users displayed in dropdown
+     */
     getUsers = async () => {
-        // bad way, should pick token from cookie
         const headers = this.getHeaders();
         axios.get('/users/', { headers }).then(response => {
             this.setState({ users: response.data });
@@ -32,6 +39,9 @@ class Dashboard extends Component {
         });
     };
 
+    /***
+     * get details of selected user i.e age, hobbies, weights and feed it to d3 graph
+     * */
     getUserDetails = async (ev) => {
         const headers = this.getHeaders();
         axios.get('/user/', {
@@ -41,42 +51,78 @@ class Dashboard extends Component {
             headers
         }).then((response) => {
             this.setState({ userData: response.data });
+            this.createAreaChart();
         }).catch((error) => {
             this.setState({ isError: true })
             console.log(error);
         });
     }
+
+    /***
+     * dropdown options for username
+     * */
     getUserOptions = () => {
         let users = this.state.users[0];
         return users.map(user => {
             return <option value={user.username} key={user._id}>{user.username}</option>
         })
     }
+    /***
+     * render d3 graph with weight details of selected user
+    * */
+    createAreaChart = () => {
+        let data = this.state.userData.weight;
+        var parseDate = d3.time.format("%Y-%m-%d").parse;
+        data.forEach(function (d) {
+            d.date = parseDate(d.date);
+            d.weight = +d.weight;
+        });
+        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+        var x = d3.time.scale()
+            .range([0, width]);
+        var y = d3.scale.linear()
+            .range([height, 0]);
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
 
-    renderd3 = () => {
-        let data1 = this.state.userData.weight;
-        console.log("insinde rende: ", data1)
+        var area = d3.svg.area()
+            .x(function (d) { return x(d.date); })
+            .y0(height)
+            .y1(function (d) { return y(d.weight); });
 
+        let myref = this.graphContainer;
+        console.log(myref.current)
+        var svg = d3.select(myref.current).append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        // var data = [{
-        //     'Wed Jan 23 00:00:00 IST 2013': 33.2
-        // }, {
-        //     'Thu Jan 24 00:00:00 IST 2013': 64
-        // }, {
-        //     'Fri Jan 25 00:00:00 IST 2013': 79
-        // }, {
-        //     'Sat Jan 26 00:00:00 IST 2013': 32
-        // }, {
-        //     'Sun Jan 27 00:00:00 IST 2013': 66
-        // }, {
-        //     'Mon Jan 28 00:00:00 IST 2013': 98
-        // }];
-        let data = this.state.userData.weight.map(item => {
-            let x = {};
-            x[new Date(item.date)] = parseInt(item.weight)
-            return x
-        })
-
+        x.domain(d3.extent(data, function (d) { return d.date; }));
+        y.domain(d3.extent(data, function (d) { return d.weight; }));
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Weight");
+        svg.append("path")
+            .datum(data)
+            .attr("class", "area")
+            .attr("d", area);
     }
 
     render() {
@@ -115,8 +161,9 @@ class Dashboard extends Component {
                                     {userData.hobbies.join(",")}
                                 </div>
                             </div>
-                            {/* {Object.keys(userData).length && this.renderd3()} */}
-                        </div>)
+                            <div ref={this.graphContainer}></div>
+                        </div>
+                        )
                     }
                 </div>
             </Fragment >
@@ -125,6 +172,3 @@ class Dashboard extends Component {
 }
 
 export default Dashboard;
-
-
-// http://bl.ocks.org/Jverma/887877fc5c2c2d99be10
