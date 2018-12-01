@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 
-const db = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdashboard'; //mongodb://letmein:letmein@123@ds157742.mlab.com:57742/userdashboard
+const db = process.env.MONGODB_URI || 'mongodb://localhost:27017/userdashboard';
 
 mongoose.Promise = global.Promise;
 mongoose.connect(db, {
