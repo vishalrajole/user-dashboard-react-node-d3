@@ -44,6 +44,11 @@ class Dashboard extends Component {
      * */
     getUserDetails = async (ev) => {
         const headers = this.getHeaders();
+        const username = ev.target.value;
+        if (!username) {
+            alert('Please select user from list first')
+            return;
+        }
         axios.get('/user/', {
             params: {
                 username: ev.target.value
@@ -72,33 +77,36 @@ class Dashboard extends Component {
     * */
     createAreaChart = () => {
         let data = this.state.userData.weight;
-        var parseDate = d3.time.format("%Y-%m-%d").parse;
+        const parseDate = d3.time.format("%Y-%m-%d").parse;
         data.forEach(function (d) {
             d.date = parseDate(d.date);
             d.weight = +d.weight;
         });
-        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
-            width = 960 - margin.left - margin.right,
+        const elementWidth = d3.select('.container').node().getBoundingClientRect().width;
+        const margin = { top: 20, right: 20, bottom: 30, left: 50 },
+            width = elementWidth - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
-        var x = d3.time.scale()
+        const x = d3.time.scale()
             .range([0, width]);
-        var y = d3.scale.linear()
+        const y = d3.scale.linear()
             .range([height, 0]);
-        var xAxis = d3.svg.axis()
+        const xAxis = d3.svg.axis()
             .scale(x)
+            .tickSize(1)
             .orient("bottom");
-        var yAxis = d3.svg.axis()
+        const yAxis = d3.svg.axis()
             .scale(y)
+            .tickSize(1)
             .orient("left");
 
-        var area = d3.svg.area()
+        const area = d3.svg.area()
             .x(function (d) { return x(d.date); })
             .y0(height)
             .y1(function (d) { return y(d.weight); });
 
-        let myref = this.graphContainer;
-        console.log(myref.current)
-        var svg = d3.select(myref.current).append("svg")
+        const container = this.graphContainer.current;
+        d3.select('svg').remove()
+        const svg = d3.select(container).append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -122,7 +130,8 @@ class Dashboard extends Component {
         svg.append("path")
             .datum(data)
             .attr("class", "area")
-            .attr("d", area);
+            .attr("d", area)
+            .attr("fill", "#a0c5cf");
     }
 
     render() {
@@ -144,24 +153,24 @@ class Dashboard extends Component {
                     {!_.isEmpty(userData) &&
                         (<div className="mt-5">
                             <div className="row">
-                                <label htmlFor="username" className="col-sm-3 col-form-label">User Name</label>
+                                <b className="col-sm-3 col-form-label">User Name</b>
                                 <div className="col-sm-9 col-form-label">
                                     {userData.username}
                                 </div>
                             </div>
                             <div className="row">
-                                <label htmlFor="age" className="col-sm-3 col-form-label">Age</label>
+                                <b className="col-sm-3 col-form-label">Age</b>
                                 <div className="col-sm-9 col-form-label">
                                     {userData.age}
                                 </div>
                             </div>
                             <div className="row">
-                                <label htmlFor="hobbies" className="col-sm-3 col-form-label">Hobbies</label>
+                                <b className="col-sm-3 col-form-label">Hobbies</b>
                                 <div className="col-sm-9 col-form-label">
                                     {userData.hobbies.join(",")}
                                 </div>
                             </div>
-                            <div ref={this.graphContainer}></div>
+                            <div className="mt-5" ref={this.graphContainer}></div>
                         </div>
                         )
                     }

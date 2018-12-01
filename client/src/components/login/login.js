@@ -32,8 +32,7 @@ class Login extends Component {
         return (
             <React.Fragment>
                 {!isLoggedIn && <div className="container">
-                    <h3 className="text-center">User Dashboard</h3>
-                    <div className="card mt-5">
+                    <div className="card mt-5 col-sm-6 mx-auto">
                         <div className="card-body">
                             <form className="row">
                                 <div className="form-group col-12">

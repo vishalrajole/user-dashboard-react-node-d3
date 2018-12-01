@@ -19,7 +19,8 @@ app.post("/login", (req, res) => {
     var body = _.pick(req.body, ["username", "password"]);
     if (body.username === "test" && body.password === "password") {
         //mocked for time being. Should be in db with some kind of token based auth
-        res.status(200).send({ token: "sdkjne8njsdh2sdksfkj" }); // should be jwt token, generate random one
+        const token = Math.random().toString(36).substr(2, 5);
+        res.status(200).send({ token }); // should be jwt token, generate random one
     } else {
         res.status(404).send("Invalid login details");
     }
@@ -27,11 +28,9 @@ app.post("/login", (req, res) => {
 
 app.get('/user', authenticate, (req, res) => {
     var username = req.query.username;
-    console.log('username:: ', username)
     Users.findOne({
         username: username
     }).then(user => {
-        console.log("inside get user::: ", user)
         if (!user) { res.status(404).send(); }
 
         res.status(200).send(user);
@@ -43,7 +42,6 @@ app.get('/user', authenticate, (req, res) => {
 // Pull all users with name
 app.get('/users', authenticate, (req, res) => {
     Users.find({}, { username: 1 }).then(users => {
-        console.log("inside get user::: ", users)
         if (!users) { res.status(404).send(); };
         res.status(200).send([users]);
     }).catch(error => {
